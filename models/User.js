@@ -2,7 +2,9 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const bcrypt=require('bcryptjs');
-
+var env =process.env.NODE_ENV;
+var configDB=require('../config/config.'+env);
+var secret=configDB.app.secret;
 const { Schema } = mongoose;
 
 const UsersSchema = new Schema({
@@ -27,7 +29,6 @@ const UsersSchema = new Schema({
   UsersSchema.methods.setPassword = function(password) {
     //var randomBytes = crypto.randomBytes(16).toString('hex');
     const hash=bcrypt.hashSync(password,10);
-    console.log("hash",hash);
     this.password =hash;//crypto.pbkdf2Sync(password, crypto.randomBytes(16).toString('hex'), 10000, 512, 'sha512').toString('hex');
     };
   
@@ -48,7 +49,7 @@ const UsersSchema = new Schema({
       email: this.email,
       id: this._id,
       exp: parseInt(expirationDate.getTime() / 1000, 10),
-    }, 'secret');
+    },secret);
   }
   
   UsersSchema.methods.toAuthJSON = function() {
